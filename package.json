@@ -1,0 +1,20 @@
+{
+  "name": "lichess-game-review",
+  "version": "1.0.0",
+  "description": "Chess.com-style game review (move classification, accuracy, eval graph) for Lichess: standalone web app",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/classifier.test.mjs",
+    "test:e2e": "node tests/browser-e2e.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "chess.js": "^1.4.0",
+    "stockfish": "^19.0.1"
+  },
+  "private": true
+}

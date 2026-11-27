@@ -1,122 +1,135 @@
 # Chess Review
 
-**Chess Review** is a web-based chess game analysis tool for reviewing games, identifying mistakes and strong moves, and learning from positions. It features a responsive interface for desktop and mobile, Stockfish-powered analysis, PGN/FEN support, move classifications, and Russian/English UI.
+**Chess Review** is a browser-based chess game review tool for analyzing games, understanding mistakes, and learning from positions.
+
+**Live website:** https://burgeeeer.github.io/chess-review/
 
 ## Features
 
-- Move-by-move game review
-- Stockfish analysis
+- Analyze games move by move with Stockfish 19
 - Quick, Standard, and Deep analysis modes
-- Move classification: Brilliant, Great, Best, Excellent, Good, Book, Inaccuracy, Mistake, and Blunder
-- PGN import and review
-- FEN position support
-- Move navigation and game history
-- Position evaluation
-- Responsive mobile and desktop layout
-- Material Design-inspired interface
-- UI animations powered by Anime.js
-- Russian and English language support
+- Move classifications: Brilliant, Great, Best, Excellent, Good, Book, Inaccuracy, Mistake, and Blunder
+- Import games from Lichess and Chess.com by player name
+- Import games from PGN
+- Work with FEN positions in the Lab
+- Evaluation bar and evaluation graph
+- Accuracy statistics and move explanations
+- Move navigation and board flipping
+- Export PGN, save board positions as PNG, and record game video (WebM)
+- Responsive interface for desktop and mobile
+- Russian and English interface
 
 ## Technology
 
 - HTML, CSS, JavaScript
-- Stockfish
+- Stockfish 19
 - Chess.js
 - Anime.js
 
+## Use online
+
+Open the website:
+
+**https://burgeeeer.github.io/chess-review/**
+
+No installation is required for the GitHub Pages version.
+
 ## Run locally
 
-The project includes a web client and a Node.js server. From the project directory:
-
+The repository also includes a Node.js server for local development.
 
 ```bash
 npm install
 npm start
 ```
 
-Then open the local URL shown by the server in your browser.
+Open the local address printed by the server.
 
-## GitHub deployment
+## GitHub Pages
 
-The project can be pushed to the repository `burgeeeer/chess-review`. The frontend is adapted for static GitHub Pages: Stockfish runs in the browser, opening/book lookups use the Lichess Opening Explorer, and player-game imports call the public Lichess and Chess.com APIs directly from the browser. Because browser cross-origin (CORS) policies are controlled by those services, player import can fail on some networks/browsers; manual PGN import and local Stockfish analysis remain the fallback. The included Node.js server is still available for local development and is not required by the Pages frontend.
+The static website is published from the `web/` directory through GitHub Actions. Pushes to the `main` branch trigger deployment automatically.
 
-### One-command deployment from Termux
-
-1. Install Git: `pkg install git`
-2. Authenticate GitHub once using your preferred Git authentication method.
-3. Run `bash setup-deploy-termux.sh` once from the project folder. The installer puts the `deploy` command in your Termux home directory, not in the Git repository.
-4. After installation, run `deploy` from the project folder whenever you want to commit and push to `main`.
-
-The local helper files `deploy.sh` and `setup-deploy-termux.sh` are excluded by `.gitignore` and will not be published. The command stages changes, commits if needed, and pushes to GitHub. It does not deploy to GitHub Pages or modify other repositories.
+The Pages version runs Stockfish in the browser and accesses public Lichess and Chess.com APIs directly. Player-game imports may be affected by network restrictions or browser CORS policies. If importing by username does not work, use PGN import as an alternative.
 
 ## Termux
 
-Install Node.js in Termux, extract the project, and run:
-
+You can run the local Node.js version in Termux:
 
 ```bash
 pkg install nodejs
 npm install
 npm start
-```
+``
 
 ## Languages
 
-The interface supports Russian and English.
+The interface supports **Russian** and **English**.
 
 ---
 
 # Chess Review (Русский)
 
-**Chess Review** — веб-приложение для анализа шахматных партий, изучения ошибок, поиска сильных ходов и улучшения шахматной игры. Приложение адаптировано для компьютеров и мобильных устройств, использует Stockfish, поддерживает PGN/FEN и русский и английский интерфейсы.
+**Chess Review** — веб-приложение для анализа шахматных партий, поиска ошибок и изучения сильных ходов. Работает на компьютерах и мобильных устройствах.
+
+**Сайт:** https://burgeeeer.github.io/chess-review/
 
 ## Возможности
 
-- Анализ партии по ходам
-- Анализ позиций с помощью Stockfish
+- Анализ партии по ходам с помощью Stockfish 19
 - Режимы анализа: Быстро, Стандартно и Глубоко
 - Классификация ходов: Brilliant, Great, Best, Excellent, Good, Book, Inaccuracy, Mistake и Blunder
-- Импорт и анализ PGN
-- Поддержка FEN
-- Навигация по ходам и история партии
-- Оценка позиции
+- Загрузка партий по никнейму из Lichess и Chess.com
+- Импорт PGN
+- Работа с позициями FEN в лаборатории
+- Шкала оценки позиции и граф оценки
+- Статистика точности и объяснения ходов
+- Навигация по ходам и переворот доски
+- Экспорт PGN, сохранение позиции в PNG и запись видео партии (WebM)
 - Адаптивный интерфейс для компьютеров и телефонов
-- Интерфейс в стиле Material Design
-- Анимации с Anime.js
-- Русский и английский языки
+- Русский и английский интерфейсы
 
 ## Технологии
 
 - HTML, CSS, JavaScript
-- Stockfish
+- Stockfish 19
 - Chess.js
 - Anime.js
 
+## Использование онлайн
+
+Откройте:
+
+**https://burgeeeer.github.io/chess-review/**
+
+Установка не требуется.
+
 ## Локальный запуск
 
-В проекте есть веб-клиент и сервер Node.js. В каталоге проекта выполните:
+В проекте также есть Node.js-сервер. В папке проекта выполните:
 
 ```bash
 npm install
 npm start
 ```
 
-Затем откройте в браузере локальный адрес, который выведет сервер.
+Откройте локальный адрес, который появится в терминале.
 
 ## GitHub Pages
 
-GitHub Pages размещает статические файлы и не запускает Node.js-сервер. Поэтому серверные функции проекта потребуют адаптации или отдельного backend-сервера для полноценной работы на GitHub Pages. Перед публикацией статической версии нужно проверить пути к ресурсам и запросы к серверу.
+Статическая версия сайта публикуется из папки `web/` с помощью GitHub Actions. При push в ветку `main` запускается автоматическая публикация.
+
+Stockfish работает непосредственно в браузере. Загрузка партий по никнейму использует публичные API Lichess и Chess.com, поэтому на некоторых сетях или браузерах она может не работать из-за ограничений. В таком случае можно импортировать PGN вручную.
 
 ## Termux
 
-Установите Node.js в Termux, распакуйте проект и выполните:
+Для локального запуска в Termux:
 
 ```bash
 pkg install nodejs
 npm install
 npm start
-```
+``
 
 ## Языки
 
-Интерфейс поддерживает русский и английский языки.
+Интерфейс поддерживает **русский** и **английский** языки.

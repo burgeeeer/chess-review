@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chess Review — Анализ партий Lichess и Chess.com</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#26c2a3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="m9 12 2 2 4-4"/>
+      </svg>
+      <span>Chess Review</span>
+      <span class="brand-sub">Stockfish 19 Full NNUE</span>
+    </div>
+
+    <form class="search-bar" id="searchForm">
+      <div class="segmented" role="group" aria-label="Платформа">
+        <button type="button" class="seg-btn active" data-platform="lichess">Lichess</button>
+        <button type="button" class="seg-btn" data-platform="chesscom">Chess.com</button>
+      </div>
+      <input class="input" id="usernameInput" type="text" placeholder="Никнейм игрока (например, DrNykterstein)" autocomplete="off" />
+      <button type="submit" class="btn btn-primary" id="searchBtn">Найти партии</button>
+      <button type="button" class="btn" id="openPgnBtn">Вставить PGN</button>
+      <button type="button" class="btn" id="btnLab" title="Создать партию или расставить FEN">Лаборатория</button>
+      <select class="select" id="depthSelect" title="Режим анализа">
+        <option value="10">Быстро</option>
+        <option value="14" selected>Стандартно</option>
+        <option value="18">Глубоко</option>
+      </select>
+      <select class="select" id="langSelect" title="Язык">
+        <option value="ru" selected>RU</option>
+        <option value="en">EN</option>
+      </select>
+    </form>
+  </header>
+
+  <main class="workspace">
+    <section class="board-col">
+      <div class="player-strip">
+        <div class="player-name" id="topPlayer">
+          <span class="swatch swatch-b" id="topSwatch"></span>
+          <span id="topName">Чёрные</span>
+          <span class="player-rating mono" id="topRating"></span>
+        </div>
+        <span class="muted mono" id="gameMetaTop"></span>
+      </div>
+
+      <div class="board-stage">
+        <div class="eval-bar" id="evalBar">
+          <div class="eval-bar-fill" id="evalBarFill"></div>
+          <span class="eval-bar-label top mono" id="evalTop"></span>
+          <span class="eval-bar-label bottom mono" id="evalBottom">0.0</span>
+        </div>
+
+        <div class="board-wrap" id="boardWrap">
+          <div class="board-grid" id="boardGrid"></div>
+          <div class="board-overlay" id="boardOverlay"></div>
+        </div>
+      </div>
+
+      <div class="player-strip">
+        <div class="player-name" id="bottomPlayer">
+          <span class="swatch swatch-w" id="bottomSwatch"></span>
+          <span id="bottomName">Белые</span>
+          <span class="player-rating mono" id="bottomRating"></span>
+        </div>
+        <div class="controls-bar">
+          <div class="nav-btns">
+            <button type="button" class="btn btn-icon mono" id="btnFirst" title="В начало (Home)">|&lt;</button>
+            <button type="button" class="btn btn-icon mono" id="btnPrev" title="Назад (&larr;)">&lt;</button>
+            <button type="button" class="btn btn-icon mono" id="btnNext" title="Вперёд (&rarr;)">&gt;</button>
+            <button type="button" class="btn btn-icon mono" id="btnLast" title="В конец (End)">&gt;|</button>
+          </div>
+          <div class="nav-btns">
+            <button type="button" class="btn" id="btnCopyPgn" title="Скопировать PGN партии">PGN</button>
+            <button type="button" class="btn" id="btnSavePng" title="Скачать PNG текущей позиции">PNG</button>
+            <button type="button" class="btn" id="btnMakeVideo" title="Записать видео партии (WebM)">Видео</button>
+            <button type="button" class="btn" id="btnFlip" title="Перевернуть доску (F)">Перевернуть</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="side-col">
+      <div class="card" id="gamesCard">
+        <div class="card-head">
+          <span class="card-title" id="gamesTitle">Партии игрока</span>
+          <span class="muted" id="gamesStatus">Введите никнейм или вставьте PGN</span>
+        </div>
+        <div class="games-list" id="gamesList"></div>
+      </div>
+
+      <div class="card" id="reviewCard">
+        <div class="card-head">
+          <span class="card-title">Обзор партии (Game Review)</span>
+          <div style="display:flex;gap:6px;">
+            <button type="button" class="btn btn-primary" id="analyzeBtn" disabled>Анализировать</button>
+            <button type="button" class="btn hidden" id="cancelBtn">Стоп</button>
+          </div>
+        </div>
+
+        <div id="openingBanner" class="opening-banner hidden"></div>
+        <div id="sandboxBar" class="sandbox-bar hidden"></div>
+
+        <div id="reviewEmpty" class="muted">
+          Выберите партию из списка или вставьте PGN, чтобы получить классификацию ходов, точность и объяснения от Stockfish 19.
+        </div>
+
+        <div id="reviewProgress" class="progress-wrap hidden">
+          <div class="progress-meta">
+            <span id="progressLabel">Анализ Stockfish 19...</span>
+            <span class="mono" id="progressNums">0 / 0</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+
+        <div id="reviewBody" class="hidden">
+          <div class="acc-grid">
+            <div class="acc-box">
+              <span class="player-name"><span class="swatch swatch-w"></span><span id="lblWhite">Белые</span></span>
+              <span class="acc-num mono" id="accWhite">0.0%</span>
+            </div>
+            <div class="acc-box">
+              <span class="player-name"><span class="swatch swatch-b"></span><span id="lblBlack">Чёрные</span></span>
+              <span class="acc-num mono" id="accBlack">0.0%</span>
+            </div>
+          </div>
+
+          <div class="graph-box" id="graphBox"></div>
+          <div class="move-explain" id="moveExplain"></div>
+          <div class="moves-table mono" id="movesTable"></div>
+          <div class="stats-grid" id="statsGrid"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop hidden" id="pgnModal">
+    <div class="modal">
+      <div class="card-head" style="margin:0;">
+        <span class="card-title">Вставить PGN партии</span>
+        <button type="button" class="btn" id="closePgnBtn">Закрыть</button>
+      </div>
+      <textarea class="textarea" id="pgnInput" placeholder="[Event &quot;...&quot;]&#10;1. e4 e5 2. Nf3 Nc6 ..."></textarea>
+      <div style="display:flex;justify-content:flex-end;gap:8px;">
+        <button type="button" class="btn btn-primary" id="loadPgnBtn">Загрузить и анализировать</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="vendor/chess.js"></script>
+  <script src="badges.js"></script>
+  <script src="classifier.js"></script>
+  <script src="app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+  <script src="i18n-motion.js"></script>
+</body>
+</html>

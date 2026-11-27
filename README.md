@@ -38,7 +38,7 @@ Then open the local URL shown by the server in your browser.
 
 ## GitHub deployment
 
-The project can be pushed to the repository `burgeeeer/chess-review`. GitHub Pages only hosts static files and does not run the included Node.js server; server-dependent features (including API calls) may not work on Pages without adaptation or an external backend.
+The project can be pushed to the repository `burgeeeer/chess-review`. The frontend is adapted for static GitHub Pages: Stockfish runs in the browser, opening/book lookups use the Lichess Opening Explorer, and player-game imports call the public Lichess and Chess.com APIs directly from the browser. Because browser cross-origin (CORS) policies are controlled by those services, player import can fail on some networks/browsers; manual PGN import and local Stockfish analysis remain the fallback. The included Node.js server is still available for local development and is not required by the Pages frontend.
 
 ### One-command deployment from Termux
 

@@ -90,7 +90,9 @@
     const res = await fetchWithTimeout(url, { headers: { Accept: 'application/x-ndjson' } }, 20000);
     if (res.status === 404) throw new Error('Игрок на Lichess не найден');
     if (!res.ok) throw new Error(`Lichess API: HTTP ${res.status}`);
-    const records = (await res.text()).split(/\\r?\\n/).map(line => line.trim()).filter(Boolean).map(line => JSON.parse(line));
+    const raw = await res.text();
+    if (/^\\s*<!doctype html|^\\s*<html/i.test(raw)) throw new Error('Lichess вернул HTML вместо PGN/JSON. API недоступно или запрос блокируется.');
+    const records = raw.split(/\r?\n/).map(line => line.trim()).filter(Boolean).map(line => { try { return JSON.parse(line); } catch { throw new Error('Некорректный ответ Lichess API'); } });
     return records.map(g => {
       const w = g.players?.white, b = g.players?.black;
       return {
@@ -111,12 +113,17 @@
     const archiveRes = await fetchWithTimeout(`${base}/games/archives`, {}, 12000);
     if (archiveRes.status === 404) throw new Error('Игрок на Chess.com не найден');
     if (!archiveRes.ok) throw new Error(`Chess.com API: HTTP ${archiveRes.status}`);
-    const archives = (await archiveRes.json()).archives || [];
+    const archiveText = await archiveRes.text();
+    if (/^\\s*<!doctype html|^\\s*<html/i.test(archiveText)) throw new Error('Chess.com API вернул HTML вместо JSON.');
+    let archiveData; try { archiveData = JSON.parse(archiveText); } catch { throw new Error('Chess.com API вернул некорректный JSON.'); }
+    const archives = archiveData.archives || [];
     const collected = [];
     for (let i = archives.length - 1; i >= 0 && collected.length < max; i--) {
       const res = await fetchWithTimeout(archives[i], {}, 12000);
       if (!res.ok) continue;
-      const month = await res.json();
+      const monthText = await res.text();
+      if (/^\\s*<!doctype html|^\\s*<html/i.test(monthText)) continue;
+      let month; try { month = JSON.parse(monthText); } catch { continue; }
       collected.push(...(month.games || []).filter(g => g.rules === 'chess' && g.pgn).reverse());
     }
     return collected.slice(0, max).map((g, idx) => {

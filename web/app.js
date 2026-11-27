@@ -32,6 +32,36 @@
     liveEvalJob: 0,
   };
 
+  const STORAGE_KEY = 'chess-review-settings-v1';
+  function loadSavedSettings() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+  }
+  function saveSettings(extra = {}) {
+    try {
+      const saved = loadSavedSettings();
+      const payload = {
+        ...saved,
+        platform: state.platform,
+        username: state.username,
+        depth: state.depth,
+        lang: state.lang,
+        flipped: state.flipped,
+        lastGamePgn: state.activeGame?.pgn || saved.lastGamePgn || '',
+        lastGameWhite: state.activeGame?.white?.name || saved.lastGameWhite || '',
+        lastGameBlack: state.activeGame?.black?.name || saved.lastGameBlack || '',
+        lastPly: state.ply,
+        ...extra,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch (err) { /* Storage may be unavailable or full; keep the app usable. */ }
+  }
+  const savedSettings = loadSavedSettings();
+  if (savedSettings.platform === 'chesscom' || savedSettings.platform === 'lichess') state.platform = savedSettings.platform;
+  if (typeof savedSettings.username === 'string') state.username = savedSettings.username;
+  if ([10, 14, 18].includes(Number(savedSettings.depth))) state.depth = Number(savedSettings.depth);
+  if (savedSettings.lang === 'ru' || savedSettings.lang === 'en') state.lang = savedSettings.lang;
+  if (typeof savedSettings.flipped === 'boolean') state.flipped = savedSettings.flipped;
+
   let sfWorker = null;
   let sfReady = null;
   let pieceImagesCache = null;
@@ -871,6 +901,7 @@
       return;
     }
     state.ply = Math.max(0, Math.min(state.fens.length - 1, nextPly));
+    saveSettings();
     renderBoard();
     renderReview();
   }
@@ -884,6 +915,7 @@
     state.legalMoves = [];
     state.liveEval = null;
     state.activeGame = game;
+    saveSettings();
     const { sans, fens } = parseGameMoves(game);
     state.sans = sans;
     state.fens = fens;
@@ -1023,6 +1055,7 @@
     const username = el('usernameInput').value.trim();
     if (!username) return;
     state.username = username;
+    saveSettings();
     el('gamesStatus').textContent = 'Загрузка...';
     el('searchBtn').disabled = true;
 
@@ -1053,13 +1086,15 @@
       document.querySelectorAll('.seg-btn').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       state.platform = btn.getAttribute('data-platform');
+      saveSettings();
     });
   });
 
   el('searchForm').addEventListener('submit', searchPlayerGames);
-  el('depthSelect').addEventListener('change', (e) => { state.depth = Number(e.target.value); });
+  el('depthSelect').addEventListener('change', (e) => { state.depth = Number(e.target.value); saveSettings(); });
   el('langSelect').addEventListener('change', (e) => {
     state.lang = e.target.value;
+    saveSettings();
     if (state.review) {
       const evals = [state.review.moves[0]?.evalBefore, ...state.review.moves.map((m) => m.evalAfter)];
       state.review = C.analyzeGame({ Chess: ChessCtor, sans: state.sans, evals, lang: state.lang });
@@ -1074,6 +1109,7 @@
   el('btnLast').addEventListener('click', () => goToPly(getActiveFens().length - 1));
   el('btnFlip').addEventListener('click', () => {
     state.flipped = !state.flipped;
+    saveSettings();
     renderPlayers();
     renderBoard();
   });
@@ -1398,13 +1434,34 @@
     else if (e.key === 'End') { e.preventDefault(); goToPly(getActiveFens().length - 1); }
     else if (e.key.toLowerCase() === 'f') {
       state.flipped = !state.flipped;
+      saveSettings();
       renderPlayers();
       renderBoard();
     }
   });
 
+  // Restore preferences and the last opened PGN after page reload.
+  el('usernameInput').value = state.username;
+  el('depthSelect').value = String(state.depth);
+  el('langSelect').value = state.lang;
+  document.querySelectorAll('.seg-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.getAttribute('data-platform') === state.platform);
+  });
   // Initial render
   renderPlayers();
   renderBoard();
   renderReview();
+  if (savedSettings.lastGamePgn) {
+    const restored = {
+      id: 'restored_last_game',
+      platform: 'pgn',
+      speed: 'Saved',
+      timeControl: '',
+      white: { name: savedSettings.lastGameWhite || 'Белые', rating: null },
+      black: { name: savedSettings.lastGameBlack || 'Чёрные', rating: null },
+      pgn: savedSettings.lastGamePgn,
+    };
+    selectGame(restored, false);
+    if (Number.isFinite(Number(savedSettings.lastPly))) goToPly(Number(savedSettings.lastPly));
+  }
 })();

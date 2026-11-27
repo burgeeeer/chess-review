@@ -34,32 +34,11 @@ Open the website:
 
 No installation is required for the GitHub Pages version.
 
-## Run locally
-
-The repository also includes a Node.js server for local development.
-
-```bash
-npm install
-npm start
-```
-
-Open the local address printed by the server.
-
 ## GitHub Pages
 
 The static website is published from the `web/` directory through GitHub Actions. Pushes to the `main` branch trigger deployment automatically.
 
 The Pages version runs Stockfish in the browser and accesses public Lichess and Chess.com APIs directly. Player-game imports may be affected by network restrictions or browser CORS policies. If importing by username does not work, use PGN import as an alternative.
-
-## Termux
-
-You can run the local Node.js version in Termux:
-
-```bash
-pkg install nodejs
-npm install
-npm start
-``
 
 ## Languages
 
@@ -103,32 +82,11 @@ The interface supports **Russian** and **English**.
 
 Установка не требуется.
 
-## Локальный запуск
-
-В проекте также есть Node.js-сервер. В папке проекта выполните:
-
-```bash
-npm install
-npm start
-```
-
-Откройте локальный адрес, который появится в терминале.
-
 ## GitHub Pages
 
 Статическая версия сайта публикуется из папки `web/` с помощью GitHub Actions. При push в ветку `main` запускается автоматическая публикация.
 
 Stockfish работает непосредственно в браузере. Загрузка партий по никнейму использует публичные API Lichess и Chess.com, поэтому на некоторых сетях или браузерах она может не работать из-за ограничений. В таком случае можно импортировать PGN вручную.
-
-## Termux
-
-Для локального запуска в Termux:
-
-```bash
-pkg install nodejs
-npm install
-npm start
-``
 
 ## Языки
 
